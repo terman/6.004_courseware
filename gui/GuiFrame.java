@@ -819,6 +819,10 @@ public class GuiFrame extends JFrame implements ActionListener, WindowListener, 
 
     // send de-identified buffers to server
     public String  DoDataGathering(String assignment) {
+	// no data collection at the moment...
+	return null;
+
+	/*
 	// use CRC calculated from user name as the unique user id
 	CRC32 hash = new CRC32();
 	hash.update(System.getProperty("user.name","???").getBytes());
@@ -874,5 +878,6 @@ public class GuiFrame extends JFrame implements ActionListener, WindowListener, 
 	catch (Exception e) {
 	    return null;
 	}
+	*/
     }
 }

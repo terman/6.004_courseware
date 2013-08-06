@@ -55,6 +55,12 @@ public class BatchSim extends GuiFrame {
 			// report error
 			report.println("error ["+start+":"+end+"] "+msg);
 		    } else {
+			// report device counts
+			BatchSimNetlistConsumer nc = new BatchSimNetlistConsumer();
+			if (n.Netlist((NetlistConsumer)nc)) {
+			    report.println("size "+nc.Summary());
+			}
+
 			// do verification
 			int nverifications = n.verifications.size();
 			for (int k = 0; k < nverifications; k += 1) {

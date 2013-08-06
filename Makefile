@@ -63,7 +63,8 @@ GUI = 	gui/EditBuffer.class \
 
 JSIM = 	jsim/JSim.class
 
-BATCHSIM = jsim/BatchSim.class
+BATCHSIM = jsim/BatchSim.class \
+	jsim/BatchSimNetlistConsumer.class
 
 VSIM = 	verilog/Identifier.class \
 	verilog/Number.class \
@@ -173,7 +174,7 @@ jsim.jar: jsim.manifest $(JSIM) $(GUI) $(NETLIST) $(PLOT) $(SIMULATION)
 	$(JAR) cfm jsim.jar jsim.manifest jsim/*.class gui/*.class netlist/*.class plot/*.class simulation/*.class icons/*.gif
 
 batchsim.jar: batchsim.manifest $(BATCHSIM) $(GUI) $(NETLIST) $(PLOT) $(SIMULATION)
-	$(JAR) cfm batchsim.jar batchsim.manifest jsim/BatchSim.class gui/*.class netlist/*.class plot/*.class simulation/*.class icons/*.gif
+	$(JAR) cfm batchsim.jar batchsim.manifest jsim/BatchSim.class jsim/BatchSimNetlistConsumer.class gui/*.class netlist/*.class plot/*.class simulation/*.class icons/*.gif
 
 vsim.jar: vsim.manifest $(VSIM) $(GUI) $(PLOT)
 	$(JAR) cfm vsim.jar vsim.manifest verilog/*.class gui/*.class plot/*.class icons/*.gif

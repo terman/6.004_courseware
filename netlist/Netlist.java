@@ -201,7 +201,7 @@ public class Netlist extends EditBuffer implements ActionListener, Runnable {
 	}
 
 	// compare expected and actual values
-	int vChecksum = 36038;
+	int vChecksum = 2536038;
 	int nverifications = verifications.size();
 	for (int i = 0; i < nverifications; i += 1) {
 	    VerifyData v = (VerifyData)verifications.get(i);
@@ -267,7 +267,7 @@ public class Netlist extends EditBuffer implements ActionListener, Runnable {
 	}
 
 	if (checkoffChecksum != 0 && vChecksum != checkoffChecksum) {
-	    return ("<font size=5>Verification error...</font><p>It appears that the checkoff information has been modified in some way.  Please verify that you are using the official checkoff file; contact 6004-labs@lists.csail.mit.edu if you can't resolve the problem.");
+	    return ("<font size=5>Verification error...</font><p>It appears that the checkoff information has been modified in some way.  Please verify that you are using the official checkoff file; contact 6004-labs@lists.csail.mit.edu if you can't resolve the problem.<p>"+vChecksum);
 	}
 
 	return null;	// checkoff okay to proceed

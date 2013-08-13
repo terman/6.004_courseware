@@ -1,4 +1,4 @@
-// Copyright (C) 1999-2007 Christopher J. Terman - All Rights Reserved.
+// Copyright (C) 1999-2013 Christopher J. Terman - All Rights Reserved.
 
 package gui;
 
@@ -27,13 +27,18 @@ import java.awt.image.ImageProducer;
 import java.io.File;
 import java.io.InputStream;
 import java.io.IOException;
+import java.net.InetAddress;
+import java.net.NetworkInterface;
+import java.net.SocketException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Properties;
+import java.util.zip.CRC32;
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -55,7 +60,6 @@ import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
-import java.util.zip.CRC32;
 
 public class GuiFrame extends JFrame implements ActionListener, WindowListener, ProgressTracker {
     public String cmdargs[];	// command line args
@@ -819,10 +823,35 @@ public class GuiFrame extends JFrame implements ActionListener, WindowListener, 
 
     // send de-identified buffers to server
     public String  DoDataGathering(String assignment) {
-	// no data collection at the moment...
-	return null;
+	// only collect data for JSim
+	if (!this.getTitle().startsWith("JSim")) return null;
 
-	/*
+	/* doesn't help?
+	// determine if we have a network connection without having to wait for a timeout
+	boolean connected = false;
+	try {
+	    Enumeration<NetworkInterface> eni = NetworkInterface.getNetworkInterfaces();
+	    if (eni != null) {
+		network_test:
+		while (eni.hasMoreElements()) {
+		    Enumeration<InetAddress> eia = eni.nextElement().getInetAddresses();
+		    while (eia.hasMoreElements()) {
+			InetAddress ia = eia.nextElement();
+			if (!ia.isAnyLocalAddress() && !ia.isLoopbackAddress() && !ia.isSiteLocalAddress()) {
+			    if (!ia.getHostName().equals(ia.getHostAddress())) {
+				connected = true;
+				break network_test; 
+			    }
+			}
+		    }
+		}
+	    }
+	} catch (SocketException e) {
+	}
+	System.out.println("connected="+connected);
+	if (!connected) return null;   // no tickee, no laundry...
+	*/
+
 	// use CRC calculated from user name as the unique user id
 	CRC32 hash = new CRC32();
 	hash.update(System.getProperty("user.name","???").getBytes());
@@ -878,6 +907,5 @@ public class GuiFrame extends JFrame implements ActionListener, WindowListener, 
 	catch (Exception e) {
 	    return null;
 	}
-	*/
     }
 }

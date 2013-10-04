@@ -42,6 +42,7 @@ abstract public class Network implements NetlistConsumer {
     double Vil;			// low logic threshold
     double time;		// current simulation time
 
+    File tfile;			// temporary file for history
     RandomAccessFile history;	// where we keep the history
     int hIndex;			// index of next record to be written
     byte[] hBuffer;		// memory buffer for history
@@ -66,7 +67,7 @@ abstract public class Network implements NetlistConsumer {
 	try {
 	    File tdir = null;
 	    if (this.tempdir != null) tdir = new File(this.tempdir);
-	    File tfile = File.createTempFile("jsim",null,tdir);
+	    tfile = File.createTempFile("jsim",null,tdir);
 	    tfile.deleteOnExit();
 	    history = new RandomAccessFile(tfile,"rw");
 	}
@@ -116,6 +117,7 @@ abstract public class Network implements NetlistConsumer {
 	try {
 	    history.close();
 	    history = null;
+	    tfile.delete();
 	    nodes.clear();
 	}
 	catch (Exception e) {

@@ -520,7 +520,7 @@ public class Memory extends JFrame implements ActionListener {
 		    if (replacementStrategy == LRU) age[index] = cycles;
 
 		    if (parent.simulation == null)
-			Message("addr=0x"+Integer.toHexString(addr)+": HIT @ way="+way+", line="+index);
+			Message("addr=0x"+Integer.toHexString(addr)+": HIT @ way="+way+", line="+aline);
 
 		    return windex;
 		}
@@ -555,7 +555,7 @@ public class Memory extends JFrame implements ActionListener {
 		    if (replacementStrategy == LRU) age[index] = cycles;
 
 		    if (parent.simulation == null)
-			Message("addr=0x"+Integer.toHexString(addr)+": HIT @ way="+way+", line="+index);
+			Message("addr=0x"+Integer.toHexString(addr)+": HIT @ way="+way+", line="+aline);
 
 		    return data;
 		}

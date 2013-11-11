@@ -411,7 +411,7 @@ public class Beta extends JPanel implements ActionListener, Runnable, KeyListene
 	    if (Execute()) break;
 	    int index = pc >> 2;
 	    if (memory.ValidAddress(pc) && breakpoints[pc >> 2]) {
-		message.Message("Stopped at breakpoint");
+		message.Message("Stopped at breakpoint (cycle "+cycles+")");
 		break;
 	    }
 	}

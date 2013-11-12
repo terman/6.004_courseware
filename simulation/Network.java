@@ -93,6 +93,10 @@ abstract public class Network implements NetlistConsumer {
 	return 0;
     }
 
+    public double Benmark() {
+        return 1e-10/(NetworkSize() * NetworkTime());
+    }
+
     public String Size() {
 	return null;
     }

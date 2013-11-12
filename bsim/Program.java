@@ -61,7 +61,7 @@ public class Program extends EditBuffer implements ActionListener {
     public Integer checkoffChecksum;
     public String checkoffType;
     boolean outputChecksum;
-    boolean dumpMemory;
+    boolean dumpMemory,mverify;
     public Vector verifications;
 
     public Program(GuiFrame parent,File source) {
@@ -773,6 +773,8 @@ public class Program extends EditBuffer implements ActionListener {
 			    outputChecksum = true;
 			else if (option.equals("dumpmemory"))
 			    dumpMemory = true;
+			else if (option.equals("mverify"))
+			    mverify = true;
 			else if (pass == 2 && beta != null)
 			    beta.Option(option);
 		    }
@@ -865,6 +867,7 @@ public class Program extends EditBuffer implements ActionListener {
 	checkoffServer = null;
 	outputChecksum = false;
 	dumpMemory = false;
+        mverify = false;
 
 	// first pass
 	pass = 1;
@@ -897,26 +900,96 @@ public class Program extends EditBuffer implements ActionListener {
 	return dot != null ? dot.value : 0;
     }
 
+    // produce 8-character hex string
+    public String hexify(int i) {
+        String n = Integer.toHexString(i);
+        if (n.length() < 8)
+            n = "00000000".substring(0,8-n.length()) + n;
+        return n;
+    }
+
     public String Checkoff() {
 	if (beta == null || beta.cycles == 0) {
 	    return ("<font size=5>Oops...</font><p>Can't find any simulation results to verify... did you run assemble and run the program?");
 	}
 
-	if (dumpMemory) {
+	if (mverify || dumpMemory) {
 	    try {
 		PrintWriter out = new PrintWriter(new FileOutputStream("checkoff_data"));
 		int maddr = 0;
 		int nwords = Size() >> 2;
-		while (nwords > 0) {
-		    out.print(".verify 0x"+Integer.toHexString(maddr)+" 8");
-		    for (int j = 1; j <= 8; j += 1, maddr += 4) {
-			int have = beta.ReadMemory(maddr);
-			out.print(" 0x"+Integer.toHexString(have));
-			nwords -= 1;
-			if (nwords == 0) break;
-		    }
-		    out.print("\n");
-		}
+                if (mverify) {
+                    out.print(".mverify xmem 0\n");
+                    while (nwords > 0) {
+                        int addr = maddr;
+                        out.print("+ ");
+                        for (int j = 1; j <= 4; j += 1) {
+                            int have = beta.ReadMemory(maddr);
+                            maddr += 4;
+                            out.print(" 0x"+hexify(have));
+                            nwords -= 1;
+                            if (nwords == 0) break;
+                        }
+                        out.print("   // Beta addr 0x"+
+                                  Integer.toHexString(addr)+
+                                  ", Mem addr 0x"+
+                                  Integer.toHexString(addr/4)+
+                                  "\n");
+                    }
+                } else {
+                    while (nwords > 0) {
+                        out.print(".verify 0x"+Integer.toHexString(maddr)+" 8");
+                        for (int j = 1; j <= 8; j += 1) {
+                            int have = beta.ReadMemory(maddr);
+                            maddr += 4;
+                            out.print(" 0x"+hexify(have));
+                            nwords -= 1;
+                            if (nwords == 0) break;
+                        }
+                        out.print("\n");
+                    }
+                }
+		out.close();
+	    }
+	    catch (Exception e) {
+	    }
+	    return "Memory data written to file checkoff_data";
+	}
+
+	if (mverify || dumpMemory) {
+	    try {
+		PrintWriter out = new PrintWriter(new FileOutputStream("checkoff_data"));
+		int maddr = 0;
+		int nwords = Size() >> 2;
+                if (mverify) {
+                    out.print(".mverify xmem 0\n");
+                    while (nwords > 0) {
+                        int addr = maddr;
+                        out.print("+ ");
+                        for (int j = 1; j <= 4; j += 1, maddr += 4) {
+                            int have = beta.ReadMemory(maddr);
+                            out.print(" 0x"+hexify(have));
+                            nwords -= 1;
+                            if (nwords == 0) break;
+                        }
+                        out.print("   // Beta addr 0x"+
+                                  Integer.toHexString(addr)+
+                                  ", Mem addr 0x"+
+                                  Integer.toHexString(addr/4)+
+                                  "\n");
+                    }
+                } else {
+                    while (nwords > 0) {
+                        out.print(".verify 0x"+Integer.toHexString(maddr)+" 8");
+                        for (int j = 1; j <= 8; j += 1, maddr += 4) {
+                            int have = beta.ReadMemory(maddr);
+                            out.print(" 0x"+hexify(have));
+                            nwords -= 1;
+                            if (nwords == 0) break;
+                        }
+                        out.print("\n");
+                    }
+                }
 		out.close();
 	    }
 	    catch (Exception e) {

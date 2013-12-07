@@ -27,7 +27,7 @@ import netlist.Netlist;
 import plot.Plot;
 
 public class JSim extends GuiFrame implements ActionListener, WindowListener {
-    public static String version = "2.1.5";
+    public static String version = "2.1.6";
     public static String copyright = "Copyright (C) Christopher J. Terman 1997-2013";
 
     String cmdargs[] = null;	// command line args

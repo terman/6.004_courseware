@@ -276,10 +276,16 @@ public class SimNode extends Node {
 	    if (driver == null) timingInfo = new TimingInfo(this,null);
 	    else {
 		if (inProgress)
-		    throw new Exception("combinational cycle detected at node "+name);
-		else inProgress = true;
-		timingInfo = driver.getTimingInfo(this);
-		inProgress = false;
+		    throw new Exception("Combinational cycle detected:\n  "+name);
+                try {
+                    inProgress = true;
+                    timingInfo = driver.getTimingInfo(this);
+                    inProgress = false;
+                } catch (Exception e) {
+                    inProgress = false;
+                    // add our name to end of cycle enumeration
+                    throw new Exception(e.getMessage() + "\n  " + name);
+                }
 	    }
 	}
 	return timingInfo;

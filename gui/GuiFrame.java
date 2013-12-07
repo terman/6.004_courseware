@@ -821,8 +821,13 @@ public class GuiFrame extends JFrame implements ActionListener, WindowListener, 
     // may be overridden...
     public String[] ignore = {};
 
-    // send de-identified buffers to server
     public String  DoDataGathering(String assignment) {
+        return null;  // turn off data gathering
+    }
+
+    // send de-identified buffers to server
+    public String  InternalDoDataGathering(String assignment) {
+
 	// only collect data for JSim
 	if (!this.getTitle().startsWith("JSim")) return null;
 

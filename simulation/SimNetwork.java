@@ -55,7 +55,7 @@ public class SimNetwork extends Network {
 
 	double minSetup = MinObservedSetup();
 	if (!Double.isInfinite(minSetup))
-	    result += "; min observed setup ="+UI.EngineeringNotation(minSetup,3)+"s @ time="+UI.EngineeringNotation(minSetupTime,3)+" (device="+minSetupDevice.name+")";
+	    result += "; min observed setup ="+UI.EngineeringNotation(minSetup,3)+"s @ time="+UI.EngineeringNotation(minSetupTime,3)+" ("+minSetupDevice.name+")";
 
 	return result;
     }

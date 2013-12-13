@@ -73,7 +73,7 @@ public class Netlist extends EditBuffer implements ActionListener, Runnable {
 		    if (size != null) {
                         String msg = "circuit size = "+size;
                         if (options.get("benmark") != null)
-                            msg = msg + " benmark = "+UI.EngineeringNotation(currentNetwork.Benmark(),1);
+                            msg = msg + " benmark = "+UI.EngineeringNotation(currentNetwork.Benmark(),2);
                         Message(msg);
                     }
 		}

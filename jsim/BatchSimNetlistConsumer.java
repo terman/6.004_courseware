@@ -16,18 +16,20 @@ public class BatchSimNetlistConsumer implements NetlistConsumer {
     public BatchSimNetlistConsumer() {
     }
 
-    // return String summary of device counts
+    // return JSON summary of device counts
     public String Summary() {
 	StringBuffer result = new StringBuffer();
+        result.append("{");
 	boolean first = true;
 
 	for (Enumeration<String> e = counts.keys(); e.hasMoreElements();) {
 	    String devtype = e.nextElement();
 	    if (first) first = false;
-	    else result.append(", ");
-	    result.append(devtype+":"+counts.get(devtype));
+	    else result.append(",");
+	    result.append("\""+devtype+"\":"+counts.get(devtype));
 	}
 
+        result.append("}");
 	return result.toString();
     }
 

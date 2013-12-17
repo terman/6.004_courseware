@@ -206,70 +206,66 @@ public class VerifyData {
 	else out.println("oops... unrecognized sample specification in .generatecheckoff: "+type);
     }
 
-    // return results as a string
+    // return JSON results
 
-    private String GeneratePeriodicData(Network network) {
-	// process sampling parameters
-	if (params.size() != 2) {
-	    return "error expected 2 parameters for PERIODIC sampling";
-	}
+    private void GeneratePeriodicData(Network network,StringBuffer result) {
 	double time = ((Number)(params.get(0))).value;
 	double period = ((Number)(params.get(1))).value;
 
 	// get actual values from network
 	ArrayList dvector = network.RetrieveDigitalPlotData(nodes);
-	if (dvector == null) {
-	    return "error can't get simulation data for "+nodes;
-	}
-	if (dvector.size() != 1) {
-	    return "error expected one-element vector, got "+dvector.size();
-	}
-	PlotData d = (PlotData)dvector.get(0);
-
-	StringBuffer result = new StringBuffer();
-	result.append("verify "+nodes);
-
-	double stopTime = network.GetTime();
-	while (time <= stopTime) {
-	    DigitalPlotCoordinate c = (DigitalPlotCoordinate)d.FindCoordinate(time);
-	    if (c != null) result.append(" "+c.toBinaryString());
-	    time += period;
-	}
-	return result.toString();
+	if (dvector != null && dvector.size() != -1) {
+            PlotData d = (PlotData)dvector.get(0);
+            double stopTime = network.GetTime();
+            boolean first = true;
+            while (time <= stopTime) {
+                DigitalPlotCoordinate c = (DigitalPlotCoordinate)d.FindCoordinate(time);
+                if (c != null) {
+                    if (!first) result.append(",");
+                    first = false;
+                    result.append("{\"t\":"+time+",\"v\":\""+c.toBinaryString()+"\"}");
+                }
+                time += period;
+            }
+        }
     }
 
-    private String GenerateTVPairs(Network network) {
-	// process sampling parameters
-	if (params.size() != 0)
-	    return "error expected 0 parameters for TVPAIR sampling";
-
+    private void GenerateTVPairs(Network network,StringBuffer result) {
 	// get actual values from network
 	ArrayList dvector = network.RetrieveDigitalPlotData(nodes);
-	if (dvector == null) {
-	    return "error can't get simulation data for "+nodes;
-	}
-	if (dvector.size() != 1) {
-	    return "error expected one-element vector, got "+dvector.size();
-	}
-	PlotData d = (PlotData)dvector.get(0);
+	if (dvector != null && dvector.size() != 1) {
+            PlotData d = (PlotData)dvector.get(0);
 
-	StringBuffer result = new StringBuffer();
-	result.append("verify "+nodes);
-
-	// grab value for each specified time
-	int ndata = data.size()-1;
-	for (int i = 0; i < ndata; i += 2) {
-	    double time = ((Number)(data.get(i))).value;
-	    DigitalPlotCoordinate c = (DigitalPlotCoordinate)d.FindCoordinate(time);
-	    if (c != null) result.append(" "+c.toBinaryString());
-	}
-	return result.toString();
+            // grab value for each specified time
+            int ndata = data.size()-1;
+            for (int i = 0; i < ndata; i += 2) {
+                double time = ((Number)(data.get(i))).value;
+                DigitalPlotCoordinate c = (DigitalPlotCoordinate)d.FindCoordinate(time);
+                if (c != null) {
+                    if (i != 0) result.append(",");
+                    result.append("{\"t\":"+time+",\"v\":\""+c.toBinaryString()+"\"}");
+                }
+            }
+        }
     }
 
     public String GenerateCheckoff(Network network) {
-	if (type.equals(PERIODIC)) return GeneratePeriodicData(network);
-	else if (type.equals(TVPAIRS)) return GenerateTVPairs(network);
-	else return "";
+	StringBuffer result = new StringBuffer();
+        result.append("{\"nodes\":[");
+
+        ArrayList names = UI.ExpandNodeName(nodes);
+        for (int i = 0; i < names.size(); i += 1) {
+            if (i != 0) result.append(",");
+            result.append("\"" + (String)names.get(i) + "\"");
+        }
+
+        result.append("],\"values\":[");
+
+	if (type.equals(PERIODIC)) GeneratePeriodicData(network,result);
+	else if (type.equals(TVPAIRS)) GenerateTVPairs(network,result);
+
+        result.append("]}");
+        return result.toString();
     }
 
     // compute our contribution to the checksum

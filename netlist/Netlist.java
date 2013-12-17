@@ -58,6 +58,10 @@ public class Netlist extends EditBuffer implements ActionListener, Runnable {
     ArrayList mverifications;		// memory contents to verify
     ArrayList writedata;		// values to write out to a file
 
+    public int error_start;             // save error info
+    public int error_end;
+    public String error_message;
+
     public Netlist(GuiFrame parent,File source) {
 	super(parent,source);
 
@@ -572,13 +576,19 @@ public class Netlist extends EditBuffer implements ActionListener, Runnable {
     }
   
     public void Error(String msg) {
-	Error(currentNetlist==null ? this : currentNetlist,
-	      currentNetlist==null ? 0 : lineStart + lineOffset,
-	      msg);
+        error_start = (currentNetlist == null) ? 0 : lineStart+lineOffset;
+        error_end = error_start;
+        error_message = msg;
+
+	Error(currentNetlist==null ? this : currentNetlist,error_start,msg);
     }
 
     public void Error(Token t,String msg) {
+        error_start = t.start;
+        error_end = t.end;
+        error_message = msg;
 	errors = true;
+
 	Message(t.netlist,t.start,t.end,msg);
     }
 

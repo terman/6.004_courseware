@@ -1,5 +1,16 @@
 // Copyright (C) 1999-2011 Christopher J. Terman - All Rights Reserved.
 
+// usage: java -jar batchsim.jar [options] [file or directory]...
+//  options: -s device-level simulation
+//           -f fast device-level simulation
+//           -g gate-level simulation
+//  generates a JSON file containing an array of objects, one object for each file processed.
+//  each object has the following attributes:
+//    "file": <filename string>
+//    "error": {"start": <number>,"end":<number>,"message":<message string>}     # error message from simulator
+//    "size": {<string devtype>:<number count> ...}
+//    "verify": [{"nodes": [<node name>, ...],"values":[{"t":<number>,"v":<binary string>}]}, ...]
+
 package jsim;
 
 import gui.GuiFrame;
@@ -38,42 +49,53 @@ public class BatchSim extends GuiFrame {
 	for (int i = 0; i < cmdargs.length; i += 1) {
 	    if (cmdargs[i].startsWith("--")) i += 1;
 	    else if (!cmdargs[i].startsWith("-")) {
-		PrintStream report = new PrintStream(cmdargs[i]+"_report");
+		PrintStream report = new PrintStream(cmdargs[i]+"_report.json");
+                report.println("[");
 		File dir = new File(cmdargs[i]);
-		File[] files = dir.listFiles();
-		for (int j = 0; j < files.length; j += 1) {
-		    report.println("file "+files[j].toString());
-
-		    // read in the next netlist
-		    Netlist n = new Netlist(this,files[j]);
-		    switch (simulator) {
-		    case 0: DoSimulate(n); break;
-		    case 1: DoFastSimulate(n); break;
-		    case 2: DoGateSimulate(n); break;
-		    }
-		    if (n.errors) {
-			// report error
-			report.println("error ["+start+":"+end+"] "+msg);
-		    } else {
-			// report device counts
-			BatchSimNetlistConsumer nc = new BatchSimNetlistConsumer();
-			if (n.Netlist((NetlistConsumer)nc)) {
-			    report.println("size "+nc.Summary());
-			}
-
-			// do verification
-			int nverifications = n.verifications.size();
-			for (int k = 0; k < nverifications; k += 1) {
-			    VerifyData v = (VerifyData)n.verifications.get(k);
-			    report.println(v.GenerateCheckoff(n.currentNetwork));
-			}
-		    }
-		    n.CleanUp();  // done with this network
-		}
+                if (dir.isDirectory()) {
+                    File[] files = dir.listFiles();
+                    for (int j = 0; j < files.length; j += 1) {
+                        if (j != 0) report.println(",");
+                        ProcessFile(files[j],report,simulator);
+                    }
+                } else ProcessFile(dir,report,simulator);
+                report.println("]");
 		report.close();
-		break;
 	    }
 	}
+    }
+
+    public void ProcessFile(File f,PrintStream report,int simulator) {
+        report.println("{\"file\": \""+f.toString()+"\",");
+
+        // read in the next netlist
+        Netlist n = new Netlist(this,f);
+        switch (simulator) {
+        case 0: DoSimulate(n); break;
+        case 1: DoFastSimulate(n); break;
+        case 2: DoGateSimulate(n); break;
+        }
+        if (n.errors) {
+            // report error
+            report.println(" \"error\":{\"start\":"+n.error_start+",\"end\":"+n.error_end+",\"message\":\""+msg+"\"}\n}");
+        } else {
+            // report device counts
+            BatchSimNetlistConsumer nc = new BatchSimNetlistConsumer();
+            if (n.Netlist((NetlistConsumer)nc)) {
+                report.println(" \"size\":"+nc.Summary()+",");
+            }
+
+            // do verification
+            report.println(" \"verify\":[");
+            int nverifications = n.verifications.size();
+            for (int k = 0; k < nverifications; k += 1) {
+                if (k != 0) report.println("  ,");
+                VerifyData v = (VerifyData)n.verifications.get(k);
+                report.println(v.GenerateCheckoff(n.currentNetwork));
+            }
+            report.println("  ]\n}");
+        }
+        n.CleanUp();  // done with this network
     }
 
     public void Simulate(Netlist n,Network s) {

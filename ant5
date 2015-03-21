@@ -1,0 +1,19 @@
+; fsm from lecture
+
+;            |        T T      
+;now   L R S | next   L R F M E
+;------------+-----------------
+lost   0 0 - | lost   0 0 1 0 0
+lost   1 - - | rotccw 0 0 1 0 0
+lost   0 1 - | rotccw 0 0 1 0 0
+rotccw 0 0 - | wall1  1 0 0 0 0
+rotccw 1 - - | rotccw 1 0 0 0 0
+rotccw 0 1 - | rotccw 1 0 0 0 0
+wall1  - 0 - | corner 0 1 1 0 0
+wall1  - 1 - | wall2  0 1 1 0 0
+wall2  1 - - | rotccw 1 0 1 0 0
+wall2  0 1 - | wall2  1 0 1 0 0
+wall2  0 0 - | wall1  1 0 1 0 0
+corner - 0 - | corner 0 1 1 0 0
+corner - 1 - | wall2  0 1 1 0 0
+
